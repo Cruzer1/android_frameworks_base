@@ -32,7 +32,9 @@ import com.android.systemui.plugins.qs.QSTile;
 import com.android.systemui.qs.customize.QSCustomizerController;
 import com.android.systemui.qs.dagger.QSScope;
 import com.android.systemui.qs.logging.QSLogger;
+import com.android.systemui.qs.TileUtils;
 import com.android.systemui.util.leak.RotationUtils;
+import com.android.systemui.tuner.TunerService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,8 @@ import javax.inject.Provider;
 
 /** Controller for {@link QuickQSPanel}. */
 @QSScope
-public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> {
+public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel>
+        implements TunerService.Tunable {
 
     private final Provider<Boolean> mUsingCollapsedLandscapeMediaProvider;
 
@@ -58,7 +61,7 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
             DumpManager dumpManager
     ) {
         super(view, qsTileHost, qsCustomizerController, usingMediaPlayer, mediaHost, metricsLogger,
-                uiEventLogger, qsLogger, dumpManager);
+                uiEventLogger, qsLogger, dumpManager, tunerService);
         mUsingCollapsedLandscapeMediaProvider = usingCollapsedLandscapeMediaProvider;
     }
 
@@ -104,10 +107,7 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
 
     @Override
     protected void onConfigurationChanged() {
-        int newMaxTiles = getResources().getInteger(R.integer.quick_qs_panel_max_tiles);
-        if (newMaxTiles != mView.getNumQuickTiles()) {
-            setMaxTiles(newMaxTiles);
-        }
+        updateConfig();
         updateMediaExpansion();
     }
 
