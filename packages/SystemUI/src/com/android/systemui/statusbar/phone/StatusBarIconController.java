@@ -338,7 +338,11 @@ public interface StatusBarIconController {
 
         private static final String USE_OLD_MOBILETYPE =
             "system:" + Settings.System.USE_OLD_MOBILETYPE;
-            
+
+        private boolean mShowWifiStandard;
+
+        private static final String SHOW_WIFI_STANDARD_ICON = Settings.Secure.SHOW_WIFI_STANDARD_ICON;
+
         protected ArrayList<String> mBlockList = new ArrayList<>();
 
         public IconManager(
@@ -347,6 +351,7 @@ public interface StatusBarIconController {
                 StatusBarPipelineFlags statusBarPipelineFlags,
                 WifiViewModel wifiViewModel,
                 MobileContextProvider mobileContextProvider) {
+
             mGroup = group;
             mLocation = location;
             mStatusBarPipelineFlags = statusBarPipelineFlags;
@@ -437,6 +442,7 @@ public interface StatusBarIconController {
                 view = wifiView;
             }
             mGroup.addView(view, index, onCreateLayoutParams());
+            Dependency.get(TunerService.class).addTunable(this, SHOW_WIFI_STANDARD_ICON);
 
             if (mIsInDemoMode) {
                 mDemoStatusIcons.addDemoWifiView(state);
@@ -630,6 +636,11 @@ public interface StatusBarIconController {
                         TunerService.parseIntegerSwitch(newValue, true);
                     updateOldStyleMobileDataIcons();
                     break;
+                case SHOW_WIFI_STANDARD_ICON:
+                    mShowWifiStandard =
+                        TunerService.parseIntegerSwitch(newValue, false);
+                    updateShowWifiStandard();
+                    break;
                 default:
                     break;
             }
@@ -648,6 +659,16 @@ public interface StatusBarIconController {
             for (int i = 0; i < mGroup.getChildCount(); i++) {
                 if (mGroup.getChildAt(i) instanceof NetworkTrafficSB) {
                     ((NetworkTrafficSB)mGroup.getChildAt(i)).setKeyguardShowing(showing);
+                }
+            }
+        }
+
+        private void updateShowWifiStandard() {
+            for (int i = 0; i < mGroup.getChildCount(); i++) {
+                View child = mGroup.getChildAt(i);
+                if (child instanceof StatusBarWifiView) {
+                    ((StatusBarWifiView) child).updateWifiState(mShowWifiStandard);
+                    return;
                 }
             }
         }

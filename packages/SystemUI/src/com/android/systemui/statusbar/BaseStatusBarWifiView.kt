@@ -31,4 +31,5 @@ abstract class BaseStatusBarWifiView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttrs: Int = 0,
+    defStyleRes: Int = 0,
 ) : FrameLayout(context, attrs, defStyleAttrs), StatusIconDisplayable
