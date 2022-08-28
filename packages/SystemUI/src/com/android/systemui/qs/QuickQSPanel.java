@@ -38,14 +38,17 @@ public class QuickQSPanel extends QSPanel {
     private static final String TAG = "QuickQSPanel";
     // A fallback value for max tiles number when setting via Tuner (parseNumTiles)
     public static final int TUNER_MAX_TILES_FALLBACK = 6;
-    public static final int DEFAULT_MIN_TILES = 4;
+
+    private static final int NUM_COLUMNS_ID = R.integer.quick_settings_num_columns;
 
     private boolean mDisabledByPolicy;
     private int mMaxTiles;
+    private int mColumns;
 
     public QuickQSPanel(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mMaxTiles = Math.max(DEFAULT_MIN_TILES, getResources().getInteger(R.integer.quick_qs_panel_max_tiles));
+        mMaxTiles = getResources().getInteger(R.integer.quick_qs_panel_max_tiles);
+        setMaxTiles(mMaxTiles);
     }
 
     @Override
@@ -106,7 +109,15 @@ public class QuickQSPanel extends QSPanel {
     }
 
     public void setMaxTiles(int maxTiles) {
-        mMaxTiles = Math.max(DEFAULT_MIN_TILES, maxTiles);
+        mColumns = TileUtils.getQSColumnsCount(mContext,
+            getResources().getInteger(NUM_COLUMNS_ID));
+        if (mColumns == 2) maxTiles = getResources().getInteger(R.integer.quick_qs_panel_max_tiles);
+        if (maxTiles > mColumns && (maxTiles % mColumns != 0)) {
+            maxTiles--;
+            setMaxTiles(maxTiles);
+            return;
+        }
+        mMaxTiles = maxTiles;
     }
 
     @Override
@@ -114,10 +125,14 @@ public class QuickQSPanel extends QSPanel {
         if (QS_SHOW_BRIGHTNESS_SLIDER.equals(key)) {
             // No Brightness or Tooltip for you!
             super.onTuningChanged(key, "0");
+        } else if (QS_LAYOUT_COLUMNS.equals(key) || QS_LAYOUT_COLUMNS_LANDSCAPE.equals(key)) {
+            setMaxTiles(mColumns);
+            super.onTuningChanged(key, newValue);
         }
     }
 
     public int getNumQuickTiles() {
+        setMaxTiles(mColumns);
         return mMaxTiles;
     }
 
@@ -197,7 +212,6 @@ public class QuickQSPanel extends QSPanel {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
                     LayoutParams.WRAP_CONTENT);
             setLayoutParams(lp);
-            setMaxColumns(getResourceColumns());
         }
 
         @Override
@@ -212,6 +226,7 @@ public class QuickQSPanel extends QSPanel {
         protected void onConfigurationChanged(Configuration newConfig) {
             super.onConfigurationChanged(newConfig);
             updateResources();
+            mQSPanel.setMaxTiles(getResourceColumns());
         }
 
         @Override
@@ -262,13 +277,15 @@ public class QuickQSPanel extends QSPanel {
 
         @Override
         public int getResourceColumns() {
-            int columns = getResources().getInteger(R.integer.quick_qs_panel_max_tiles);
+            int columns = getResources().getInteger(NUM_COLUMNS_ID);
             return TileUtils.getQSColumnsCount(mContext, columns);
         }
 
         @Override
         public void updateSettings() {
+            updateResources();
             mQSPanel.setMaxTiles(getResourceColumns());
+            updateMaxRows(10000, mRecords.size());
             super.updateSettings();
         }
     }

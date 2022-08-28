@@ -49,9 +49,11 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel>
         implements TunerService.Tunable {
 
     private final Provider<Boolean> mUsingCollapsedLandscapeMediaProvider;
+    private final TunerService mTunerService;
 
     @Inject
-    QuickQSPanelController(QuickQSPanel view, QSTileHost qsTileHost,
+    QuickQSPanelController(QuickQSPanel view, TunerService tunerService,
+            QSTileHost qsTileHost,
             QSCustomizerController qsCustomizerController,
             @Named(QS_USING_MEDIA_PLAYER) boolean usingMediaPlayer,
             @Named(QUICK_QS_PANEL) MediaHost mediaHost,
@@ -62,6 +64,7 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel>
     ) {
         super(view, qsTileHost, qsCustomizerController, usingMediaPlayer, mediaHost, metricsLogger,
                 uiEventLogger, qsLogger, dumpManager, tunerService);
+        mTunerService = tunerService;
         mUsingCollapsedLandscapeMediaProvider = usingCollapsedLandscapeMediaProvider;
     }
 
@@ -93,6 +96,9 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel>
     @Override
     protected void onViewAttached() {
         super.onViewAttached();
+        mTunerService.addTunable(mView, QSPanel.QS_LAYOUT_COLUMNS);
+        mTunerService.addTunable(mView, QSPanel.QS_LAYOUT_COLUMNS_LANDSCAPE);
+        updateConfig();
     }
 
     @Override
@@ -100,8 +106,11 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel>
         super.onViewDetached();
     }
 
-    private void setMaxTiles(int parseNumTiles) {
-        mView.setMaxTiles(parseNumTiles);
+    private void updateConfig() {
+        int maxTiles = getResources().getInteger(R.integer.quick_qs_panel_max_tiles);
+        int columns = getResources().getInteger(R.integer.quick_settings_num_columns);
+        columns = TileUtils.getQSColumnsCount(getContext(), columns);
+        mView.setMaxTiles(Math.max(columns, maxTiles));
         setTiles();
     }
 
