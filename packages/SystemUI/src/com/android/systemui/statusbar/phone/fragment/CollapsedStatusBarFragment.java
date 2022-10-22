@@ -50,6 +50,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.android.systemui.Dependency;
 import com.android.systemui.Dumpable;
 import com.android.systemui.R;
 import com.android.systemui.animation.Interpolators;
@@ -125,7 +126,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     private View mClockView;
     private View mOngoingCallChip;
     private View mNotificationIconAreaInner;
-    private View mClockView;
     private View mCenterClockView;
     private View mRightClockView;
     private int mDisabled1;
@@ -308,8 +308,8 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mCenterClockLayout = (LinearLayout) mStatusBar.findViewById(R.id.center_clock_layout);
         mRightClock = mStatusBar.findViewById(R.id.right_clock);
         mClockView = mStatusBar.findViewById(R.id.clock);
-        mCenterClockView = mStatusBar.findViewById(R.id.clock_center);
-        mRightClockView = mStatusBar.findViewById(R.id.clock_right);
+        mCenterClockView = mStatusBar.findViewById(R.id.center_clock);
+        mRightClockView = mStatusBar.findViewById(R.id.right_clock);
         showEndSideContent(false);
         initEmergencyCryptkeeperText();
         initOperatorName();
