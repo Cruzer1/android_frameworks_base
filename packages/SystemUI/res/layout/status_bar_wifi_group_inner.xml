@@ -60,7 +60,6 @@
         </FrameLayout>
         <com.android.systemui.statusbar.AlphaOptimizedImageView
                 android:id="@+id/wifi_standard"
-                android:layout_gravity="bottom|start"
                 android:layout_height="@dimen/status_bar_wifi_signal_size"
                 android:layout_width="@dimen/status_bar_wifi_signal_size" />
 
